@@ -1,6 +1,6 @@
 ## Github
 
-https://github.com/jarek4/chefos-cleaning.git
+https://github.com/jarek4/chefos-mvp.git
 
 ## Developing
 
