@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en" data-theme="cerberus">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!-- Google Tag Manager -->
+		<script>
+			// Set default settings to 'denied' if no consent cookie is found
+			function gtag() {
+				if (window) {
+					if (window.dataLayer !== undefined && window.dataLayer.push !== undefined) {
+						window.dataLayer.push(arguments);
+					}
+				}
+				// window.dataLayer.push(arguments);
+			}
+			if (readCookie() == null) {
+				gtag('consent', 'default', {
+					ad_storage: 'denied',
+					ad_user_data: 'denied',
+					ad_personalization: 'denied',
+					analytics_storage: 'denied',
+					functionality_storage: 'denied',
+					personalization_storage: 'denied',
+					wait_for_update: 500
+				});
+			}
+			// GTM:
+			(function (w, d, s, l, i) {
+				w[l] = w[l] || [];
+				w[l].push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
+				var f = d.getElementsByTagName(s)[0],
+					j = d.createElement(s),
+					dl = l != 'dataLayer' ? '&l=' + l : '';
+				j.async = true;
+				j.src = 'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+				f.parentNode.insertBefore(j, f);
+			})(window, document, 'script', 'dataLayer', 'GTM-NP3QGL8H');
+
+			//  <!-- End Google Tag Manager -->
+			function readCookie() {
+				let c = null;
+				const cookie = document.cookie
+					.split('; ')
+					.find((row) => row.startsWith('chefos-clean_gdpr' + '='));
+				if (cookie) {
+					c = decode(cookie ?? '');
+				}
+
+				return c;
+			}
+
+			function decode(v) {
+				let dv = decodeURIComponent(v);
+				let jsonObject = null;
+				let regex = new RegExp(`^chefos-clean_gdpr=`);
+				let decodedValue = dv.replace(regex, '');
+				try {
+					jsonObject = JSON.parse(decodedValue);
+				} catch (e) {
+					return jsonObject;
+				}
+				return jsonObject;
+			}
+		</script>
+		%sveltekit.head%
+		<!-- Verify ownership of the domain with Google Search Console -->
+		<meta name="google-site-verification" content="MUMKQpJZ8lZCIBzY32fwExcLLa_8y5nAOQAnmGQfjQQ" />
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
+</html>

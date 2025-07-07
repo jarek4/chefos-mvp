@@ -1,0 +1,35 @@
+test-results
+node_modules
+e2e
+
+# Output
+.output
+.vercel
+.netlify
+.wrangler
+/.svelte-kit
+/build
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.*
+!.env.example
+!env.example
+!.env.test
+
+# Google api
+g-cms-455718-806a7f608ea1.json
+!g-secret-file-example.json
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# Docker
+Dockerfile
+Dockerfile-*
+!Dockerfile.example

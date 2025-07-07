@@ -1,0 +1,82 @@
+# ###########################################
+# ### PRODUCTION container  ###
+# ### 4forin/chefos-cleaning:0.0.5-alfa  ###
+#
+#  package.json - all devDependencies. 
+#  all environment variables are !!!  \$env/static/private !!!
+#  So Docker build stage must have all ENVs - they won't change.
+#  Docker Image SIZE ~250 MB
+# ###########################################
+
+FROM node:lts-alpine3.20  AS builder
+WORKDIR '/app'
+RUN mkdir -p googlecms
+COPY package.json .
+COPY package-lock.json .
+COPY svelte.config.js .
+COPY example.json ./googlecms
+
+# DEV_GOOGLE_APPLICATION_CREDENTIALS=./example.json \ 
+
+ENV GOOGLE_APPLICATION_CREDENTIALS='./googlecms/example.json' \
+   DEV_GOOGLE_APPLICATION_CREDENTIALS='./googlecms/example.json' \ 
+   SHEET_ID=id \
+   NODEMAILER_GOOGLE_EMAIL=example \
+   NODEMAILER_GOOGLE_EMAIL_PASSWORD='example' \
+   BREVO_EMAIL_FROM=example \
+   BREVO_EMAIL_TO=example \
+   BREVO_API_KEY=example \ 
+   TURNSTILE_SITE_KEY=example \
+   TURNSTILE_SECRET_KEY=example \
+   DEV_TURNSTILE_SITE_KEY=dev_example \ 
+   DEV_TURNSTILE_SECRET_KEY=dev_example
+
+RUN npm ci
+COPY . .
+RUN npm run prepare
+RUN npm run build
+RUN npm prune --production
+
+FROM node:lts-alpine3.20  AS production
+LABEL version="0.0.1-version" \
+   description="package.json - all devDependencies. all env vars are \$env/static/private - docker build stage must have all ENVs."
+WORKDIR /app
+RUN mkdir -p /app/googlecms
+ARG TZ=Europe/Sofia
+COPY --from=builder /app/build build/
+COPY --from=builder /app/node_modules node_modules/
+COPY --from=builder /app/googlecms/ /app/googlecms/
+COPY package.json .
+EXPOSE 3000
+ENV NODE_ENV=production
+CMD [ "node", "build" ]
+
+# ports: 3000:3000
+# env: ORIGIN http://localhost:3000
+
+# node:lts-alpine3.20 -> NODE_VERSION=22.14.0
+# node:lts-alpine3.21 -> NODE_VERSION=22.14.0 (2025.04.05)
+
+# ## Step by step:
+
+# check security meta tags are ready for production!
+# check src\lib\utils\constants.ts [APP_ENV = 'prod', PROD_BASE_URL]
+# npm i
+# npm run prepare - not obligatory
+# npm run build 
+# npm run preview  - not obligatory
+# docker build . -t 4forin/chefos-cleaning:0.0.5-alfa
+# image: 4forin/chefos-cleaning:0.0.5-alfa
+
+# VOLUME for google-sheet-secret.json file
+# it is needed for G sheet API to fetch Privacy policy from G Drive
+# /host/dir/ need to contain google-sheet-secret.json file!
+# /host/dir:/app/googlecms
+
+# ENV:
+# ORIGIN http://localhost:3000 or https://site-domain.com
+# SHEET_ID - G sheet id
+# NODEMAILER_GOOGLE_EMAIL Gmail 
+# NODEMAILER_GOOGLE_EMAIL_PASSWORD Gmail application key
+# TURNSTILE_SITE_KEY - cloudflare recaptcha alternative development key: 
+# GOOGLE_APPLICATION_CREDENTIALS path in container to example.json file directory
